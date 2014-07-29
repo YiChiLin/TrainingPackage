@@ -19,8 +19,10 @@ namespace DataObject
             ds = GetDataByAdapter();
             //ds = GetDataByReader();
 
-            UpdateProductName(ds);
-            //PrintData.PrintDataSet(ds);
+            //UpdateProductName(ds);
+            PrintData.PrintDataSet(ds);
+
+            //BulkCopy(ds);
 
             Console.ReadKey();
         }
@@ -114,7 +116,34 @@ namespace DataObject
                 }
             }
 
-            Console.WriteLine("done");
+            Console.WriteLine("Update by DataAdapter done");
+        }
+
+        /// <summary>
+        /// 使用SqlBulkCopy將DataTable的資料批次寫入資料庫中
+        /// </summary>
+        /// <param name="ds"></param>
+        private static void BulkCopy(DataSet ds)
+        {
+            SqlConnection conn = new SqlConnection(DatabaseSetting.ConnectionString);
+
+            using (SqlBulkCopy bulkCopy = new SqlBulkCopy(conn))
+            {
+                conn.Open();
+
+                bulkCopy.BatchSize = 1000;
+
+                //設定目標table名稱
+                bulkCopy.DestinationTableName = "products_copy";          
+      
+                //設定對應的欄位名稱, 注意大小寫需一致
+                bulkCopy.ColumnMappings.Add("ProductId", "ProductId");
+                bulkCopy.ColumnMappings.Add("ProductName", "ProductName");
+
+                bulkCopy.WriteToServer(ds.Tables[0]);
+            }
+
+            Console.WriteLine("BulkCopy done");
         }
     }
 }
