@@ -103,7 +103,7 @@ namespace CommonSyntax
         #endregion
 
 
-        #region 簡潔寫法
+        #region 簡潔寫法 (c#專用)
 
         /// <summary>
         /// 簡寫的Property, .Net會自動生成private field

@@ -19,9 +19,12 @@ namespace DataObject
             ds = GetDataByAdapter();
             //ds = GetDataByReader();
 
+            //資料來源須配合GetDataByAdapter()
             //UpdateProductName(ds);
+
             PrintData.PrintDataSet(ds);
 
+            //資料來源須配合GetDataByAdapter()
             //BulkCopy(ds);
 
             Console.ReadKey();
@@ -125,22 +128,23 @@ namespace DataObject
         /// <param name="ds"></param>
         private static void BulkCopy(DataSet ds)
         {
-            SqlConnection conn = new SqlConnection(DatabaseSetting.ConnectionString);
-
-            using (SqlBulkCopy bulkCopy = new SqlBulkCopy(conn))
+            using (SqlConnection conn = new SqlConnection(DatabaseSetting.ConnectionString))
             {
-                conn.Open();
+                using (SqlBulkCopy bulkCopy = new SqlBulkCopy(conn))
+                {
+                    conn.Open();
 
-                bulkCopy.BatchSize = 1000;
+                    bulkCopy.BatchSize = 1000;
 
-                //設定目標table名稱
-                bulkCopy.DestinationTableName = "products_copy";          
-      
-                //設定對應的欄位名稱, 注意大小寫需一致
-                bulkCopy.ColumnMappings.Add("ProductId", "ProductId");
-                bulkCopy.ColumnMappings.Add("ProductName", "ProductName");
+                    //設定目標table名稱
+                    bulkCopy.DestinationTableName = "products_copy";
 
-                bulkCopy.WriteToServer(ds.Tables[0]);
+                    //設定對應的欄位名稱, 注意大小寫需一致
+                    bulkCopy.ColumnMappings.Add("ProductId", "ProductId");
+                    bulkCopy.ColumnMappings.Add("ProductName", "ProductName");
+
+                    bulkCopy.WriteToServer(ds.Tables[0]);
+                }
             }
 
             Console.WriteLine("BulkCopy done");
