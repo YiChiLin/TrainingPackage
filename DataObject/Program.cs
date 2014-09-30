@@ -16,8 +16,8 @@ namespace DataObject
         static void Main(string[] args)
         {
             DataSet ds;
-            ds = GetDataByAdapter();
-            //ds = GetDataByReader();
+            //ds = GetDataByAdapter();
+            ds = GetDataByReader();
 
             //資料來源須配合GetDataByAdapter()
             //UpdateProductName(ds);
@@ -39,6 +39,8 @@ namespace DataObject
             DataSet ds = new DataSet();
             DataTable dt = new DataTable();
             dt.TableName = "Table1";
+            dt.Columns.Add("Title");
+            dt.Columns.Add("Name");
             ds.Tables.Add(dt);
 
             using (SqlConnection conn = new SqlConnection(DatabaseSetting.ConnectionString))
@@ -50,7 +52,7 @@ namespace DataObject
                 {
                     while (dr.Read())
                     {
-                        dt.Rows.Add(new List<object>() { dr["TitleOfCourtesy"], dr["LastName"] });
+                        dt.Rows.Add(new object[] { dr["TitleOfCourtesy"], dr["LastName"] });
                     }
                 }
             }
