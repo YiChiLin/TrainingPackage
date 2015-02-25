@@ -18,7 +18,9 @@ namespace RelatedDataTable
             DataSet ds = GetData();
             ComputeSum(ds);            
             //ComputeSumByLinq(ds);
-            
+
+            Console.WriteLine();
+            Console.WriteLine();
             PrintCustomerOrder();
 
             Console.ReadKey();
@@ -84,34 +86,6 @@ namespace RelatedDataTable
         }
 
         /// <summary>
-        /// 取得彙總運算範例所需的訂單明細資料
-        /// </summary>
-        /// <returns></returns>
-        private static DataSet GetData()
-        {
-            DataSet ds = new DataSet();
-
-            using (SqlConnection conn = new SqlConnection(DatabaseSetting.ConnectionString))
-            {
-                string sqlString = @"select ProductID, Discount, Quantity from [Order Details] 
-                                     where Quantity >= 110 
-                                     order by productid, Discount, Quantity ";
-                SqlCommand cmd = new SqlCommand(sqlString, conn);
-
-                using (SqlDataAdapter da = new SqlDataAdapter(cmd))
-                {
-                    DataTable dt = new DataTable();
-                    dt.TableName = "OrderDetail";
-                    da.Fill(dt);
-                    ds.Tables.Add(dt);
-                }
-            }
-
-            return ds;
-        }
-
-
-        /// <summary>
         /// 以relation實作兩DataTable Join及select
         /// </summary>
         private static void PrintCustomerOrder()
@@ -152,8 +126,11 @@ namespace RelatedDataTable
 
             if (customerDt.Rows.Count > 0)
             {
-                DataRow customerDr = customerDt.Rows[0];
+                //只取第一筆客戶資料
+                DataRow customerDr = customerDt.Rows[0];                
                 Console.WriteLine(string.Format("CustomerId:{0}", customerDr["CustomerId"].ToString()));
+
+                //主table為parent, join的table為child
                 foreach (DataRow orderDataRow in customerDr.GetChildRows("CustomerOrderRelation"))
                 {
                     Console.WriteLine(string.Format("OrderID:{0}, OrderDate:{1}",
@@ -161,6 +138,33 @@ namespace RelatedDataTable
                                       Convert.ToDateTime(orderDataRow["OrderDate"]).ToString("yyyy-MM-dd")));
                 }
             }
-        }       
+        }
+
+        /// <summary>
+        /// 取得彙總運算範例所需的訂單明細資料
+        /// </summary>
+        /// <returns></returns>
+        private static DataSet GetData()
+        {
+            DataSet ds = new DataSet();
+
+            using (SqlConnection conn = new SqlConnection(DatabaseSetting.ConnectionString))
+            {
+                string sqlString = @"select ProductID, Discount, Quantity from [Order Details] 
+                                     where Quantity >= 110 
+                                     order by productid, Discount, Quantity ";
+                SqlCommand cmd = new SqlCommand(sqlString, conn);
+
+                using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                {
+                    DataTable dt = new DataTable();
+                    dt.TableName = "OrderDetail";
+                    da.Fill(dt);
+                    ds.Tables.Add(dt);
+                }
+            }
+
+            return ds;
+        }
     }
 }
